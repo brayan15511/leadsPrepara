@@ -5,7 +5,7 @@ import mysql.connector
 import pandas as pd
 import re
 
-# Conexão com o banco de dados
+# Aqui eu me conecto ao BD (informações apenas de testes)
 db = mysql.connector.connect(
     host="localhost",
     user="root",
@@ -14,7 +14,6 @@ db = mysql.connector.connect(
 )
 cursor = db.cursor()
 
-# Função para adicionar leads
 def add_leads():
     nome = entry_nome.get()
     telefone = entry_telefone.get()
@@ -46,7 +45,6 @@ def add_leads():
     except mysql.connector.Error as err:
         messagebox.showerror("Erro", f"Erro ao inserir o lead: {err}")
 
-# Função para limpar os campos de entrada
 def limpar_campos():
     entry_nome.delete(0, tk.END)
     entry_telefone.delete(0, tk.END)
@@ -54,7 +52,6 @@ def limpar_campos():
     combo_canal.set("")
     combo_situacao.set("")
 
-# Função para exibir os leads na interface
 def exibir_leads():
     for item in tree.get_children():
         tree.delete(item)
@@ -81,11 +78,10 @@ def exibir_leads():
 
     cursor.execute(query, params)
     for row in cursor.fetchall():
-        row = list(row)  # Converte para lista para modificar
-        row[2] = formatar_numero(row[2])  # Formata o telefone
+        row = list(row)  
+        row[2] = formatar_numero(row[2])  
         tree.insert("", tk.END, values=row)
 
-# Função para editar um lead selecionado
 def editar_lead():
     selected_item = tree.selection()
     if not selected_item:
@@ -107,6 +103,7 @@ def editar_lead():
         nova_idade = entry_idade.get()
         novo_canal = combo_canal.get()
         nova_situacao = combo_situacao.get()
+        btn_confirmar_edicao.destroy() # << some com o botão de editar assim que ele for clicado
 
         if not all([novo_nome, novo_telefone, nova_idade, novo_canal, nova_situacao]):
             messagebox.showwarning("Atenção", "Todos os campos devem ser preenchidos!")
@@ -136,7 +133,7 @@ def editar_lead():
     btn_confirmar_edicao = tk.Button(root, text="Confirmar Edição", command=confirmar_edicao, font=("Arial", 10, "bold"), borderwidth=2, relief="solid")
     btn_confirmar_edicao.grid(row=5, column=0, columnspan=2, padx=(290,0))
 
-# Função para excluir um lead
+
 def excluir_lead():
     selected_item = tree.selection()
     if not selected_item:
@@ -152,11 +149,9 @@ def excluir_lead():
         except mysql.connector.Error as err:
             messagebox.showerror("Erro", f"Erro ao excluir o lead: {err}")
 
-# Função para formatar o número do lead, removendo espaços e caracteres especiais
 def formatar_numero(telefone):
-    return re.sub(r'\D', '', telefone)  # Remove tudo que não é dígito
+    return re.sub(r'\D', '', telefone)  
 
-# Função para exportar apenas nomes e números para o Excel
 def exportar_excel():
     pesquisa = entry_pesquisa.get()
     filtro_canal = combo_filtro_canal.get()
@@ -201,38 +196,31 @@ def exportar_excel():
         except Exception as e:
             messagebox.showerror("Erro", f"Erro ao exportar para o Excel: {e}")
 
-# Configuração da janela principal
 root = tk.Tk()
 root.title("Sistema de Leads - Escola")
 root.state("zoomed")
 
-# Campo Nome
 tk.Label(root, text="Nome:", font=("Arial", 20, "bold"), width=25).grid(row=0, column=0, padx=1, sticky="w")
 entry_nome = tk.Entry(root, width=70, font=("Arial", 10, "bold"), borderwidth=2, relief="solid")
 entry_nome.grid(row=0, column=0, padx=(275,0), sticky="w")
 
 
-# Campo Telefone
 tk.Label(root, text="Telefone:", font=("Arial", 20, "bold"), width=25).grid(row=1, column=0, padx=5, sticky="w")
 entry_telefone = tk.Entry(root, width=40, font=("Arial", 10, "bold"), borderwidth=2, relief="solid")
 entry_telefone.grid(row=1, column=0, padx=(295,0), sticky="w")
 
-# Campo Idade
 tk.Label(root, text="Idade:", font=("Arial", 20, "bold"), width=25).grid(row=2, column=0, padx=5, sticky="w")
 entry_idade = tk.Entry(root, width=10, font=("Arial", 10, "bold"), borderwidth=2, relief="solid")
 entry_idade.grid(row=2, column=0, padx=(275,0), sticky="w")
 
-# Campo Canal
 tk.Label(root, text="Ações:", font=("Arial", 20, "bold"), width=25).grid(row=3, column=0, padx=5, sticky="w")
 combo_canal = ttk.Combobox(root, values=["Jet", "Crédito", "Vagas", "Urna", "Indicação", "Outros"], width=40)
 combo_canal.grid(row=3, column=0, padx=(275,0), sticky="w")
 
-# Campo Situação
 tk.Label(root, text="Situação:", font=("Arial", 20, "bold"), width=25).grid(row=4, column=0, padx=5, sticky="w")
 combo_situacao = ttk.Combobox(root, values=["Encaminhado", "Não encaminhado", "Recusou encaminhamento", "Trabalhando"], width=40)
 combo_situacao.grid(row=4, column=0, padx=(295,0), sticky="w")
 
-# Botões para adicionar, editar e excluir leads
 frame_botoes = tk.Frame(root)
 frame_botoes.grid(row=5, column=0, columnspan=2, pady=10, sticky="w")
 btn_adicionar = tk.Button(frame_botoes, text="Adicionar Lead", command=add_leads, font=("Arial", 10, "bold"), borderwidth=2, relief="solid")
@@ -242,16 +230,13 @@ btn_editar.pack(side=tk.LEFT, padx=(150,0))
 btn_excluir = tk.Button(frame_botoes, text="Excluir Lead", command=excluir_lead, font=("Arial", 10, "bold"), borderwidth=2, relief="solid")
 btn_excluir.pack(side=tk.LEFT, padx=(150,0))
 
-# Campo de pesquisa
 tk.Label(root, text="Pesquisar:", font=("Arial", 20, "bold"), width=25).grid(row=7, column=0, padx=5, sticky="w")
 entry_pesquisa = tk.Entry(root, width=40, font=("Arial", 10, "bold"), borderwidth=2, relief="solid")
 entry_pesquisa.grid(row=7, column=0, padx=(295,0), sticky="w")
 
-# Botão de pesquisa
 btn_pesquisar = tk.Button(root, text="Pesquisar", width=15, command=exibir_leads, font=("Arial", 10, "bold"), borderwidth=2, relief="solid")
 btn_pesquisar.grid(row=7, column=1, padx=(10, 0))
 
-# Filtros
 tk.Label(root, text="Filtrar por Ações:", font=("Arial", 20, "bold"), width=25).grid(row=8, column=0, padx=5, sticky="w")
 combo_filtro_canal = ttk.Combobox(root, values=["Todos", "Jet", "Crédito", "Vagas", "Urna", "Indicação", "Outros"], width=40)
 combo_filtro_canal.grid(row=8, column=0, padx=(345,0), sticky="w")
@@ -262,12 +247,10 @@ combo_filtro_situacao = ttk.Combobox(root, values=["Todos", "Encaminhado", "Não
 combo_filtro_situacao.grid(row=9, column=0, padx=(355,0), sticky="w")
 combo_filtro_situacao.set("Todos")
 
-# Botão para exportar para Excel
 btn_exportar = tk.Button(root, text="Exportar", width=15, command=exportar_excel, font=("Arial", 10, "bold"), borderwidth=2, relief="solid")
 btn_exportar.grid(row=7, column=2, padx=(50,50), sticky="w")
 
 
-# Tabela para exibir leads
 tree = ttk.Treeview(root, columns=("ID", "Nome", "Telefone", "Idade", "Ações", "Situação", "Data Cadastro"), show="headings")
 tree.heading("ID", text="ID")
 tree.heading("Nome", text="Nome")
@@ -278,20 +261,16 @@ tree.heading("Situação", text="Situação")
 tree.heading("Data Cadastro", text="Data Cadastro")
 tree.grid(row=6, column=0, columnspan=3, padx=5, pady=5, sticky="nsew")  # Tabela ocupa a largura total da janela
 
-# Configurando a coluna da tabela para se expandir
 root.grid_rowconfigure(6, weight=1)
 root.grid_columnconfigure(0, weight=1)
 root.grid_columnconfigure(1, weight=1)
 
-# Logo
 logo_image = Image.open(".\\img\\pC.png")
 logo_image = logo_image.resize((300, 300))  # Ajuste o tamanho conforme necessário
 logo_photo = ImageTk.PhotoImage(logo_image)
 logo_label = tk.Label(root, image=logo_photo)
 logo_label.grid(row=0, column=2, rowspan=5, padx=(0,220), pady=10, sticky="e")
 
-# Exibir leads ao iniciar o sistema
 exibir_leads()
 
-# Iniciar a interface
 root.mainloop()
